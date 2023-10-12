@@ -108,7 +108,6 @@ require([
           </tr>
         </table>`
                 document.getElementById("infoDiv").innerHTML = HTML;
-                // `You clicked the map at: ${lat}, ${lon}. and the pixel values are ${pixelVals}`;
             }).catch((err) => {
                 document.getElementById("infoDiv").innerHTML = `There was an error processing your request. Please click the map to try again.`;
                 console.error(err);
