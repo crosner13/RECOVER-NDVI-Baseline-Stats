@@ -4,19 +4,21 @@ require([
     "esri/Map",
     "esri/views/MapView",
     "esri/layers/ImageryLayer",
+    "esri/widgets/Expand",
     "esri/widgets/LayerList",
+    "esri/widgets/Search",
+    "esri/widgets/Home",
+    "esri/widgets/BasemapGallery",
     "esri/widgets/Legend",
     "esri/rest/identify",
     "esri/rest/support/IdentifyParameters"
-], function (esriConfig, Map, MapView, ImageryLayer, LayerList, Legend, identify, IdentifyParameters) {
+], function (esriConfig, Map, MapView, ImageryLayer, Expand,
+    LayerList, Search, Home, BasemapGallery, Legend, 
+    identify, IdentifyParameters) {
 
     // Get all NDVI Baseline Statistics imagery layers from REST endpoints
     const ndviMean = new ImageryLayer({
-        url: "https://giscenter.rdc.isu.edu/server/rest/services/RECOVER/NDVI_Mean/ImageServer"//,
-        // popupTemplate: {
-        //   title: "Mean",
-        //   content: "{Raster.ServicePixelValue}"
-        // }
+        url: "https://giscenter.rdc.isu.edu/server/rest/services/RECOVER/NDVI_Mean/ImageServer"
     });
     const ndviMedian = new ImageryLayer({
         url: "https://giscenter.rdc.isu.edu/server/rest/services/RECOVER/NDVI_Median/ImageServer",
@@ -43,6 +45,7 @@ require([
         visible: false
     });
 
+    // Set up map
     const statLayers = [ndviMean, ndviMedian, ndviMax, ndviStdDev, ndviUpper, ndviLower]; // order here matters, as it determines which pixel values are returned in what order later.
 
     const view = new MapView({
@@ -55,6 +58,7 @@ require([
         center: [-112.433096, 42.861323]
     });
 
+    // Main
     const infoDiv = document.getElementById("infoDiv");
     view.ui.add(infoDiv, "top-right");
 
@@ -113,19 +117,46 @@ require([
         console.log(pixelVals);
     });
 
+    // Add widgets
     view.when(() => {
-        const layerList = new LayerList({
+        const searchWidget = new Search({
             view: view
         });
+        const homeWidget = new Home({
+            view: view
+        });
+        const basemapGalleryExpand = new Expand({
+            view: view,
+            content: new BasemapGallery({
+                view: view
+            })
+        });
+        const layerListExpand = new Expand({
+            view: view,
+            content: new LayerList({
+                view: view
+            })
+        });
+        const legendExpand = new Expand({
+            view: view,
+            content: new Legend({
+                view: view
+            })
+        });
 
-        // Add widget to the top right corner of the view
-        view.ui.add(layerList, "bottom-left");
+        view.ui.add({
+            component: searchWidget,
+            position: "top-left",
+            index: 0
+        });
+        view.ui.add({
+            component: homeWidget,
+            position: "top-left",
+            index: 1
+        });
+        view.ui.add(basemapGalleryExpand, "top-left");
+        view.ui.add(layerListExpand, "top-left");
+        view.ui.add(legendExpand, "top-left");
 
-        // view.openPopup({
-        //       title: "NDVI Baseline Statistics",
-        //       content:
-        //         "Click the map to get NDVI baseline statistics from ###DATE to ###DATE.",
-        //       location: view.center
-        //     });
     });
 });
