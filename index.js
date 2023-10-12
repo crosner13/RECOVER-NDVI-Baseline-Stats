@@ -28,10 +28,6 @@ require([
         url: "https://giscenter.rdc.isu.edu/server/rest/services/RECOVER/NDVI_Maximum/ImageServer",
         visible: false
     });
-    const ndviMin = new ImageryLayer({
-        url: "https://giscenter.rdc.isu.edu/server/rest/services/RECOVER/NDVI_Minimum/ImageServer",
-        visible: false
-    });
     const ndviStdDev = new ImageryLayer({
         url: "https://giscenter.rdc.isu.edu/server/rest/services/RECOVER/NDVI_Standard_Deviation/ImageServer",
         visible: false
