@@ -66,12 +66,60 @@ require([
 
         var pixelVals = [];
 
+        var mean;
+        
+        statLayers[0].identify({
+            geometry: event.mapPoint
+        }).then((identifyResponse) => {
+            mean = identifyResponse.value;
+        });
+
+        var median;
+
+        statLayers[1].identify({
+            geometry: event.mapPoint
+        }).then((identifyResponse) => {
+            median = identifyResponse.value;
+        });
+
+        var max;
+
+        statLayers[2].identify({
+            geometry: event.mapPoint
+        }).then((identifyResponse) => {
+            max = identifyResponse.value;
+        });
+
+        var stdDev;
+
+        statLayers[3].identify({
+            geometry: event.mapPoint
+        }).then((identifyResponse) => {
+            stdDev = identifyResponse.value;
+        });
+
+        var upperBound;
+
+        statLayers[4].identify({
+            geometry: event.mapPoint
+        }).then((identifyResponse) => {
+            upperBound = identifyResponse.value;
+        });
+
+        var lowerBound;
+
+        statLayers[5].identify({
+            geometry: event.mapPoint
+        }).then((identifyResponse) => {
+            lowerBound = identifyResponse.value;
+        });
+
         for (let i = 0; i < statLayers.length; i++) {
             statLayers[i].identify({
                 geometry: event.mapPoint
             }).then((identifyResponse) => {
                 pixelVals.push(identifyResponse.value); // TODO: Verify that responses are not asynchronous, and that pixel values are actually being returned in the order that they appear in the statLayers array
-                HTML = `
+        HTML = `
          <div>You clicked the map at ${lat}, ${lon}.</div>
          <table>
           <tr style="background-color:#DCC48E;">
@@ -80,27 +128,27 @@ require([
           </tr>
           <tr>
             <td>Mean</td>
-            <td>${pixelVals[0]}</td>
+            <td>${mean}</td>
           </tr>
           <tr>
             <td>Median</td>
-            <td>${pixelVals[1]}</td>
+            <td>${median}</td>
           </tr>
           <tr>
             <td>Maximum</td>
-            <td>${pixelVals[2]}</td>
+            <td>${max}</td>
           </tr>
           <tr>
             <td>Standard Deviation</td>
-            <td>${pixelVals[3]}</td>
+            <td>${stdDev}</td>
           </tr>
           <tr>
             <td>95% Confidence Interval Upper Bound</td>
-            <td>${pixelVals[4]}</td>
+            <td>${upperBound}</td>
           </tr>
           <tr>
             <td>95% Confidence Interval Lower Bound</td>
-            <td>${pixelVals[5]}</td>
+            <td>${lowerBound}</td>
           </tr>
         </table>`
                 document.getElementById("infoDiv").innerHTML = HTML;
@@ -109,7 +157,6 @@ require([
                 console.error(err);
             });
         }
-        console.log(pixelVals);
     });
 
     // Add widgets
