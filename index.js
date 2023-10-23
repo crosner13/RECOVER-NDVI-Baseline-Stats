@@ -56,7 +56,7 @@ require([
         container: "viewDiv",
         map: new Map({
             basemap: "dark-gray-vector",
-            layers: mapLayers // add ndviLower, ndviMin when they stop misbehaving
+            layers: mapLayers
         }),
         center: [-111.236885, 40.5],
         zoom: 4 
