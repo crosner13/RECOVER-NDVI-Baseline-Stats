@@ -4,6 +4,7 @@ require([
     "esri/Map",
     "esri/views/MapView",
     "esri/layers/ImageryLayer",
+    "esri/Basemap",
     "esri/widgets/Expand",
     "esri/widgets/LayerList",
     "esri/widgets/Search",
@@ -12,10 +13,16 @@ require([
     "esri/widgets/Legend",
     "esri/rest/identify",
     "esri/rest/support/IdentifyParameters"
-], function (esriConfig, Map, MapView, ImageryLayer, Expand,
+], function (esriConfig, Map, MapView, ImageryLayer, Basemap, Expand,
     LayerList, Search, Home, BasemapGallery, Legend, 
     identify, IdentifyParameters) {
 
+    const ndviLayer = new ImageryLayer({
+        portalItem: {
+            id: "f6bb66f1c11e467f9a9a859343e27cf8"
+        },
+        popupEnabled: false
+    });
     // Get all NDVI Baseline Statistics imagery layers from REST endpoints
     const ndviMean = new ImageryLayer({
         url: "https://giscenter.rdc.isu.edu/server/rest/services/RECOVER/NDVI_Mean/ImageServer"
@@ -43,12 +50,13 @@ require([
 
     // Set up map
     const statLayers = [ndviMean, ndviMedian, ndviMax, ndviStdDev, ndviUpper, ndviLower]; // order here matters, as it determines which pixel values are returned in what order later.
+    const mapLayers = [ndviLayer, ndviMean, ndviMedian, ndviMax, ndviStdDev, ndviUpper, ndviLower]
 
     const view = new MapView({
         container: "viewDiv",
         map: new Map({
             basemap: "dark-gray-vector",
-            layers: statLayers // add ndviLower, ndviMin when they stop misbehaving
+            layers: mapLayers // add ndviLower, ndviMin when they stop misbehaving
         }),
         center: [-111.236885, 40.5],
         zoom: 4 
