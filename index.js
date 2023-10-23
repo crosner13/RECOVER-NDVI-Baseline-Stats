@@ -50,8 +50,8 @@ require([
             basemap: "dark-gray-vector",
             layers: statLayers // add ndviLower, ndviMin when they stop misbehaving
         }),
-        zoom: 12,
-        center: [-112.433096, 42.861323]
+        center: [-111.236885, 40.5],
+        zoom: 4 
     });
 
     // Main
