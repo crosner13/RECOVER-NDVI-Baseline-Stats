@@ -3,6 +3,7 @@ require([
     "esri/config",
     "esri/Map",
     "esri/views/MapView",
+    "esri/renderers/RasterStretchRenderer",
     "esri/layers/ImageryLayer",
     "esri/Basemap",
     "esri/widgets/Expand",
@@ -12,10 +13,53 @@ require([
     "esri/widgets/BasemapGallery",
     "esri/widgets/Legend",
     "esri/rest/identify",
-    "esri/rest/support/IdentifyParameters"
-], function (esriConfig, Map, MapView, ImageryLayer, Basemap, Expand,
-    LayerList, Search, Home, BasemapGallery, Legend, 
-    identify, IdentifyParameters) {
+    "esri/rest/support/IdentifyParameters",
+    "esri/rest/support/MultipartColorRamp"
+], function (esriConfig, Map, MapView, RasterStretchRenderer, ImageryLayer, Basemap, Expand,
+    LayerList, Search, Home, BasemapGallery, Legend,
+    identify, IdentifyParameters, MultipartColorRamp) {
+
+    const colorRamp = MultipartColorRamp.fromJSON({
+        "type": "multipart",
+        "colorRamps": [
+            {
+                "type": "algorithmic",
+                "algorithm": "esriHSVAlgorithm",
+                "fromColor": [
+                    110,
+                    70,
+                    45,
+                    255
+                ],
+                "toColor": [
+                    204,
+                    204,
+                    102,
+                    255
+                ]
+            },
+            {
+                "type": "algorithmic",
+                "algorithm": "esriHSVAlgorithm",
+                "fromColor": [
+                    204,
+                    204,
+                    102,
+                    255
+                ],
+                "toColor": [
+                    48,
+                    100,
+                    102,
+                    255
+                ]
+            }
+        ]
+    });
+
+    const renderer = new RasterStretchRenderer({
+        colorRamp: colorRamp
+    });
 
     const ndviLayer = new ImageryLayer({
         portalItem: {
@@ -26,7 +70,8 @@ require([
     });
     // Get all NDVI Baseline Statistics imagery layers from REST endpoints
     const ndviMean = new ImageryLayer({
-        url: "https://giscenter.rdc.isu.edu/server/rest/services/RECOVER/NDVI_Mean/ImageServer"
+        url: "https://giscenter.rdc.isu.edu/server/rest/services/RECOVER/NDVI_Mean/ImageServer",
+        renderer: renderer
     });
     const ndviMedian = new ImageryLayer({
         url: "https://giscenter.rdc.isu.edu/server/rest/services/RECOVER/NDVI_Median/ImageServer",
@@ -60,7 +105,7 @@ require([
             layers: mapLayers
         }),
         center: [-111.236885, 40.5],
-        zoom: 4 
+        zoom: 4
     });
 
     // Main
@@ -76,7 +121,7 @@ require([
         var pixelVals = [];
 
         var mean;
-        
+
         statLayers[0].identify({
             geometry: event.mapPoint
         }).then((identifyResponse) => {
@@ -128,7 +173,7 @@ require([
                 geometry: event.mapPoint
             }).then((identifyResponse) => {
                 pixelVals.push(identifyResponse.value); // TODO: Verify that responses are not asynchronous, and that pixel values are actually being returned in the order that they appear in the statLayers array
-        HTML = `
+                HTML = `
          <div>You clicked the map at ${lat}, ${lon}.</div>
          <table>
           <tr style="background-color:#DCC48E;">
