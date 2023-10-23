@@ -21,7 +21,8 @@ require([
         portalItem: {
             id: "f6bb66f1c11e467f9a9a859343e27cf8"
         },
-        popupEnabled: false
+        popupEnabled: false,
+        visible: false
     });
     // Get all NDVI Baseline Statistics imagery layers from REST endpoints
     const ndviMean = new ImageryLayer({
