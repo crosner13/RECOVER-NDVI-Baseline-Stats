@@ -58,7 +58,8 @@ require([
     });
 
     const renderer = new RasterStretchRenderer({
-        colorRamp: colorRamp
+        colorRamp: colorRamp,
+        stretchType: "min-max"
     });
 
     const ndviLayer = new ImageryLayer({
@@ -75,22 +76,27 @@ require([
     });
     const ndviMedian = new ImageryLayer({
         url: "https://giscenter.rdc.isu.edu/server/rest/services/RECOVER/NDVI_Median/ImageServer",
+        renderer: renderer,
         visible: false
     });
     const ndviMax = new ImageryLayer({
         url: "https://giscenter.rdc.isu.edu/server/rest/services/RECOVER/NDVI_Maximum/ImageServer",
+        renderer: renderer,
         visible: false
     });
     const ndviStdDev = new ImageryLayer({
         url: "https://giscenter.rdc.isu.edu/server/rest/services/RECOVER/NDVI_Standard_Deviation/ImageServer",
+        renderer: renderer,
         visible: false
     });
     const ndviUpper = new ImageryLayer({
         url: "https://giscenter.rdc.isu.edu/server/rest/services/RECOVER/NDVI_95PCT_CI_Upper_Bound/ImageServer",
+        renderer: renderer,
         visible: false
     });
     const ndviLower = new ImageryLayer({
         url: "https://giscenter.rdc.isu.edu/server/rest/services/RECOVER/NDVI_95PCT_CI_Lower_Bounds/ImageServer",
+        renderer: renderer,
         visible: false
     });
 
