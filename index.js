@@ -14,10 +14,11 @@ require([
     "esri/widgets/Legend",
     "esri/rest/identify",
     "esri/rest/support/IdentifyParameters",
-    "esri/rest/support/MultipartColorRamp"
+    "esri/rest/support/MultipartColorRamp",
+    "esri/Graphic"
 ], function (esriConfig, Map, MapView, RasterStretchRenderer, ImageryLayer, Basemap, Expand,
     LayerList, Search, Home, BasemapGallery, Legend,
-    identify, IdentifyParameters, MultipartColorRamp) {
+    identify, IdentifyParameters, MultipartColorRamp, Graphic) {
 
     const colorRamp = MultipartColorRamp.fromJSON({
         "type": "multipart",
@@ -117,6 +118,32 @@ require([
     // Main
     const infoDiv = document.getElementById("infoDiv");
     view.ui.add(infoDiv, "top-right");
+
+    view.on("click", function (event) {
+        createGraphic(event.mapPoint.latitude, event.mapPoint.longitude);
+    });
+
+    function createGraphic(lat, long) {
+        view.graphics.removeAll();
+        
+        var point = {
+            type: "point",
+            longitude: long,
+            latitude: lat
+        };
+
+        var markerSymbol = {
+            type: "simple-marker",
+            color: [226, 119, 40]
+        };
+
+        var pointGraphic = new Graphic({
+            geometry: point,
+            symbol: markerSymbol
+        });
+
+        view.graphics.add(pointGraphic);
+    };
 
     view.on("click", function (event) {
         // Get the coordinates of the click on the view
