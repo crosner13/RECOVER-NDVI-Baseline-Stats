@@ -134,7 +134,9 @@ require([
 
         var markerSymbol = {
             type: "simple-marker",
-            color: [226, 119, 40]
+            color: [0, 255, 255],
+            outline: {width: "0.5px"},
+            size: 9
         };
 
         var pointGraphic = new Graphic({
