@@ -32,12 +32,6 @@ body
     width: 100%;
 }
 
-#infoDiv {
-    width: 20vw;
-    padding: 5px;
-    margin: 5px;
-}
-
 table {
     border-collapse: collapse;
     border: 1px solid black;
