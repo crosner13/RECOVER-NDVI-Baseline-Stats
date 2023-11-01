@@ -1,24 +1,19 @@
 
 require([
-    "esri/config",
     "esri/Map",
     "esri/views/MapView",
     "esri/renderers/RasterStretchRenderer",
     "esri/layers/ImageryLayer",
-    "esri/Basemap",
     "esri/widgets/Expand",
     "esri/widgets/LayerList",
     "esri/widgets/Search",
     "esri/widgets/Home",
     "esri/widgets/BasemapGallery",
     "esri/widgets/Legend",
-    "esri/rest/identify",
-    "esri/rest/support/IdentifyParameters",
     "esri/rest/support/MultipartColorRamp",
     "esri/Graphic"
-], function (esriConfig, Map, MapView, RasterStretchRenderer, ImageryLayer, Basemap, Expand,
-    LayerList, Search, Home, BasemapGallery, Legend,
-    identify, IdentifyParameters, MultipartColorRamp, Graphic) {
+], function (Map, MapView, RasterStretchRenderer, ImageryLayer, Expand,
+    LayerList, Search, Home, BasemapGallery, Legend, MultipartColorRamp, Graphic) {
 
     const colorRamp = MultipartColorRamp.fromJSON({
         "type": "multipart",
