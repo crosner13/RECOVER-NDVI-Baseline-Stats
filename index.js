@@ -240,12 +240,20 @@ require([
             <td>${lowerBound}</td>
           </tr>
         </table>`
-                document.getElementById("infoDiv").innerHTML = HTML;
-            }).catch((err) => {
-                document.getElementById("infoDiv").innerHTML = `There was an error processing your request. Please click the map to try again.`;
-                console.error(err);
+                
+                view.openPopup({
+                    content: HTML
+                });
             });
         }
+    });
+
+    view.when(() => {
+        view.openPopup({
+            title: "NDVI Baseline Statistics",
+            content: "Click anywhere in the contiguous Western United States to view NDVI Baseline statistics from 1984 - 2022.",
+            location: view.center
+        });
     });
 
     // Add widgets
