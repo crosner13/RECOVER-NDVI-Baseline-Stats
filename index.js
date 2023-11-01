@@ -116,8 +116,15 @@ require([
     });
 
     // Main
-    const infoDiv = document.getElementById("infoDiv");
-    view.ui.add(infoDiv, "top-right");
+    const aboutExpand = new Expand({
+        view: view,
+        expandIconClass: "esri-icon-question",
+        expandTooltip: "About Community Submitted Fires",
+        content: document.getElementById("aboutDiv"),
+        group: "bottom-left"
+    });
+
+    view.ui.add(aboutExpand, "bottom-left");
 
     view.on("click", function (event) {
         createGraphic(event.mapPoint.latitude, event.mapPoint.longitude);
@@ -251,7 +258,7 @@ require([
     view.when(() => {
         view.openPopup({
             title: "NDVI Baseline Statistics",
-            content: "Click anywhere in the contiguous Western United States to view NDVI Baseline statistics from 1984 - 2022.",
+            content: "Click anywhere in the contiguous Western United States to view NDVI Baseline statistics from 2013 - 2022.",
             location: view.center
         });
     });

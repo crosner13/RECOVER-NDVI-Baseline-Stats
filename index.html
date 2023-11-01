@@ -21,7 +21,34 @@
         <img src="https://www.arcgis.com/sharing/rest/content/items/18fb54a427d449c08dc79ba4a650d636/resources/images/widget_159/1683741702207.png"
             alt="NASA RECOVER 2.0 logo" />NDVI Baseline
     </div>
-    <div id="viewDiv"></div>
+    <div id="viewDiv">
+        <div id="aboutDiv">
+            <h3>About</h3>
+            <p>
+              Welcome to the NASA RECOVER 2.0 NDVI Baseline web mapping application. The
+              purpose of this application is to allow users to get a general overview of an area's NDVI statistics 
+              over the past decade (2013 - 2022). These statistics include mean, median, maximum, standard deviation, 
+              and 95% confidence interval upper- and lower-bounds. This app serves as a supplement to the <a href="">
+              NDVI Baseline tutorial document.</a>
+            </p>
+            <h3>How it works</h3>
+            <p>
+              Simply click anywhere in the contiguous Western United States to generate a table of NDVI baseline statistics
+              values at that specific latitude and longitude. A map pop-up containing the latitude, longitude, and table will 
+              appear, as well as a cyan point graphic where you clicked. The pop-up can be docked to the top-right corner of 
+              the map. The NDVI Mean layer is turned on by default, but all summary statistics image layers can be toggled on and 
+              off in the layer list widget. 
+            </p>
+            <h3>Methods</h3>
+            <p>
+                These summary statistics layers were built by Idaho State University's GIS Training and Research Center staff. Using 
+                Google Earth Engine, Landsat 8 OLI NDVI imagery was created and downloaded for WRS Paths 31-48 and Rows 26-38 (175 unique 
+                path/row combinations). Using ArcGIS Pro, the resulting imagery was scaled by a factor of 10,000 and mosaicked. From this multidimensional 
+                mosaic dataset, summary statistics imagery layers were derived and published. For more information, please visit the <a 
+                href="https://giscenter.isu.edu/pdf/PDF_NASA_RECOVER2/RECOVER_NDVI_Baseline.pdf">NASA RECOVER 2.0 NDVI Baseline document</a>.
+            </p>
+          </div>
+    </div>
 </body>
 
 </html>
