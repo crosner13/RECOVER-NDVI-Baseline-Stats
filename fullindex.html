@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>RECOVER 2.0: NDVI Baseline</title>
+    <link rel="icon" href="https://giscenter.isu.edu/favicon.ico">
+    <style>
+        html,
+        body {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+        }
+
+        .header {
+            text-align: left;
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+            background: black;
+            color: white;
+            height: 44px;
+            display: flex;
+            padding-top: 5px;
+            align-items: left;
+            font-weight: bold;
+            font-size: 24pt;
+        }
+
+        .header img {
+            height: 40px;
+            margin: 0 8px 0 8px;
+        }
+
+        #viewDiv {
+            padding: 0;
+            margin: 0;
+            height: calc(100% - 49px);
+            width: 100%;
+        }
+
+        #aboutDiv {
+            width: 300px;
+            background-color: white;
+            padding: 10px;
+            max-height: 320px;
+            overflow: auto;
+        }
+
+        table {
+            border-collapse: collapse;
+            border: 1px solid black;
+        }
+
+        th {
+            font-weight: bold;
+            padding: 10px;
+        }
+
+        td {
+            border: 1px solid black;
+            padding: 5px;
+        }
+    </style>>
+    <link rel="stylesheet" href="/index.css">
+    <link rel="stylesheet" href="https://js.arcgis.com/4.27/esri/themes/light/main.css">
+    <script src="https://js.arcgis.com/4.27/"></script>
+    <script src="/index.js"></script>
+    <script>
+
+        require([
+            "esri/Map",
+            "esri/views/MapView",
+            "esri/renderers/RasterStretchRenderer",
+            "esri/layers/ImageryLayer",
+            "esri/widgets/Expand",
+            "esri/widgets/LayerList",
+            "esri/widgets/Search",
+            "esri/widgets/Home",
+            "esri/widgets/BasemapGallery",
+            "esri/widgets/Legend",
+            "esri/rest/support/MultipartColorRamp",
+            "esri/Graphic"
+        ], function (Map, MapView, RasterStretchRenderer, ImageryLayer, Expand,
+            LayerList, Search, Home, BasemapGallery, Legend, MultipartColorRamp, Graphic) {
+
+            const colorRamp = MultipartColorRamp.fromJSON({
+                "type": "multipart",
+                "colorRamps": [
+                    {
+                        "type": "algorithmic",
+                        "algorithm": "esriHSVAlgorithm",
+                        "fromColor": [
+                            110,
+                            70,
+                            45,
+                            255
+                        ],
+                        "toColor": [
+                            204,
+                            204,
+                            102,
+                            255
+                        ]
+                    },
+                    {
+                        "type": "algorithmic",
+                        "algorithm": "esriHSVAlgorithm",
+                        "fromColor": [
+                            204,
+                            204,
+                            102,
+                            255
+                        ],
+                        "toColor": [
+                            48,
+                            100,
+                            102,
+                            255
+                        ]
+                    }
+                ]
+            });
+
+            const renderer = new RasterStretchRenderer({
+                colorRamp: colorRamp,
+                stretchType: "min-max"
+            });
+
+            const ndviLayer = new ImageryLayer({
+                portalItem: {
+                    id: "f6bb66f1c11e467f9a9a859343e27cf8"
+                },
+                popupEnabled: false,
+                visible: false
+            });
+            // Get all NDVI Baseline Statistics imagery layers from REST endpoints
+            const ndviMean = new ImageryLayer({
+                url: "https://giscenter.rdc.isu.edu/server/rest/services/RECOVER/NDVI_Mean/ImageServer",
+                renderer: renderer
+            });
+            const ndviMedian = new ImageryLayer({
+                url: "https://giscenter.rdc.isu.edu/server/rest/services/RECOVER/NDVI_Median/ImageServer",
+                renderer: renderer,
+                visible: false
+            });
+            const ndviMax = new ImageryLayer({
+                url: "https://giscenter.rdc.isu.edu/server/rest/services/RECOVER/NDVI_Maximum/ImageServer",
+                renderer: renderer,
+                visible: false
+            });
+            const ndviStdDev = new ImageryLayer({
+                url: "https://giscenter.rdc.isu.edu/server/rest/services/RECOVER/NDVI_Standard_Deviation/ImageServer",
+                renderer: renderer,
+                visible: false
+            });
+            const ndviUpper = new ImageryLayer({
+                url: "https://giscenter.rdc.isu.edu/server/rest/services/RECOVER/NDVI_95PCT_CI_Upper_Bound/ImageServer",
+                renderer: renderer,
+                visible: false
+            });
+            const ndviLower = new ImageryLayer({
+                url: "https://giscenter.rdc.isu.edu/server/rest/services/RECOVER/NDVI_95PCT_CI_Lower_Bounds/ImageServer",
+                renderer: renderer,
+                visible: false
+            });
+
+            // Set up map
+            const statLayers = [ndviMean, ndviMedian, ndviMax, ndviStdDev, ndviUpper, ndviLower]; // order here matters, as it determines which pixel values are returned in what order later.
+            const mapLayers = [ndviLayer, ndviMean, ndviMedian, ndviMax, ndviStdDev, ndviUpper, ndviLower]
+
+            const view = new MapView({
+                container: "viewDiv",
+                map: new Map({
+                    basemap: "dark-gray-vector",
+                    layers: mapLayers
+                }),
+                center: [-111.236885, 40.5],
+                zoom: 4
+            });
+
+            // Main
+            const aboutExpand = new Expand({
+                view: view,
+                expandIconClass: "esri-icon-question",
+                expandTooltip: "About Community Submitted Fires",
+                content: document.getElementById("aboutDiv"),
+                group: "bottom-left"
+            });
+
+            view.ui.add(aboutExpand, "bottom-left");
+
+            view.on("click", function (event) {
+                createGraphic(event.mapPoint.latitude, event.mapPoint.longitude);
+            });
+
+            function createGraphic(lat, long) {
+                view.graphics.removeAll();
+
+                var point = {
+                    type: "point",
+                    longitude: long,
+                    latitude: lat
+                };
+
+                var markerSymbol = {
+                    type: "simple-marker",
+                    color: [0, 255, 255],
+                    outline: { width: "0.5px" },
+                    size: 9
+                };
+
+                var pointGraphic = new Graphic({
+                    geometry: point,
+                    symbol: markerSymbol
+                });
+
+                view.graphics.add(pointGraphic);
+            };
+
+            view.on("click", function (event) {
+                // Get the coordinates of the click on the view
+                var lat = Math.round(event.mapPoint.latitude * 1000) / 1000;
+                var lon = Math.round(event.mapPoint.longitude * 1000) / 1000;
+                console.log(lat, lon);
+
+                var pixelVals = [];
+
+                var mean;
+
+                statLayers[0].identify({
+                    geometry: event.mapPoint
+                }).then((identifyResponse) => {
+                    mean = identifyResponse.value;
+                });
+
+                var median;
+
+                statLayers[1].identify({
+                    geometry: event.mapPoint
+                }).then((identifyResponse) => {
+                    median = identifyResponse.value;
+                });
+
+                var max;
+
+                statLayers[2].identify({
+                    geometry: event.mapPoint
+                }).then((identifyResponse) => {
+                    max = identifyResponse.value;
+                });
+
+                var stdDev;
+
+                statLayers[3].identify({
+                    geometry: event.mapPoint
+                }).then((identifyResponse) => {
+                    stdDev = identifyResponse.value;
+                });
+
+                var upperBound;
+
+                statLayers[4].identify({
+                    geometry: event.mapPoint
+                }).then((identifyResponse) => {
+                    upperBound = identifyResponse.value;
+                });
+
+                var lowerBound;
+
+                statLayers[5].identify({
+                    geometry: event.mapPoint
+                }).then((identifyResponse) => {
+                    lowerBound = identifyResponse.value;
+                });
+
+                for (let i = 0; i < statLayers.length; i++) {
+                    statLayers[i].identify({
+                        geometry: event.mapPoint
+                    }).then((identifyResponse) => {
+                        pixelVals.push(identifyResponse.value); 
+                        HTML = `
+         <div>You clicked the map at ${lat}, ${lon}.</div>
+         <table>
+          <tr style="background-color:#DCC48E;">
+            <th>NDVI Baseline Statistics</th>
+            <th></th>
+          </tr>
+          <tr>
+            <td>Mean</td>
+            <td>${mean}</td>
+          </tr>
+          <tr>
+            <td>Median</td>
+            <td>${median}</td>
+          </tr>
+          <tr>
+            <td>Maximum</td>
+            <td>${max}</td>
+          </tr>
+          <tr>
+            <td>Standard Deviation</td>
+            <td>${stdDev}</td>
+          </tr>
+          <tr>
+            <td>95% Confidence Interval Upper Bound</td>
+            <td>${upperBound}</td>
+          </tr>
+          <tr>
+            <td>95% Confidence Interval Lower Bound</td>
+            <td>${lowerBound}</td>
+          </tr>
+        </table>`
+
+                        view.openPopup({
+                            content: HTML
+                        });
+                    });
+                }
+            });
+
+            view.when(() => {
+                view.openPopup({
+                    title: "NDVI Baseline Statistics",
+                    content: "Click anywhere in the contiguous Western United States to view NDVI Baseline statistics from 2013 - 2022.",
+                    location: view.center
+                });
+            });
+
+            // Add widgets
+            view.when(() => {
+                const searchWidget = new Search({
+                    view: view
+                });
+                const homeWidget = new Home({
+                    view: view
+                });
+                const basemapGalleryExpand = new Expand({
+                    view: view,
+                    content: new BasemapGallery({
+                        view: view
+                    })
+                });
+                const layerListExpand = new Expand({
+                    view: view,
+                    content: new LayerList({
+                        view: view
+                    })
+                });
+                const legendExpand = new Expand({
+                    view: view,
+                    content: new Legend({
+                        view: view
+                    })
+                });
+
+                view.ui.add({
+                    component: searchWidget,
+                    position: "top-left",
+                    index: 0
+                });
+                view.ui.add({
+                    component: homeWidget,
+                    position: "top-left",
+                    index: 1
+                });
+                view.ui.add(basemapGalleryExpand, "top-left");
+                view.ui.add(layerListExpand, "top-left");
+                view.ui.add(legendExpand, "top-left");
+
+            });
+        });
+
+    </script>>
+
+</head>
+
+<body>
+    <div class="header">
+        <img src="https://www.arcgis.com/sharing/rest/content/items/18fb54a427d449c08dc79ba4a650d636/resources/images/widget_159/1683741702207.png"
+            alt="NASA RECOVER 2.0 logo" />NDVI Baseline
+    </div>
+    <div id="viewDiv">
+        <div id="aboutDiv">
+            <h3>About</h3>
+            <p>
+                Welcome to the NASA RECOVER 2.0 NDVI Baseline web mapping application. The
+                purpose of this application is to allow users to get a general overview of an area's NDVI statistics
+                over the past decade (2013 - 2022). These statistics include mean, median, maximum, standard deviation,
+                and 95% confidence interval upper- and lower-bounds. This app serves as a supplement to the <a href="">
+                    NDVI Baseline tutorial document.</a>
+            </p>
+            <h3>How it works</h3>
+            <p>
+                Simply click anywhere in the contiguous Western United States to generate a table of NDVI baseline
+                statistics
+                values at that specific latitude and longitude. A map pop-up containing the latitude, longitude, and
+                table will
+                appear, as well as a cyan point graphic where you clicked. The pop-up can be docked to the top-right
+                corner of
+                the map. The NDVI Mean layer is turned on by default, but all summary statistics image layers can be
+                toggled on and
+                off in the layer list widget.
+            </p>
+            <h3>Methods</h3>
+            <p>
+                These summary statistics layers were built by Idaho State University's GIS Training and Research Center
+                staff. Using
+                Google Earth Engine, Landsat 8 OLI NDVI imagery was created and downloaded for WRS Paths 31-48 and Rows
+                26-38 (175 unique
+                path/row combinations). Using ArcGIS Pro, the resulting imagery was scaled by a factor of 10,000 and
+                mosaicked. From this multidimensional
+                mosaic dataset, summary statistics imagery layers were derived and published. For more information,
+                please visit the <a
+                    href="https://giscenter.isu.edu/pdf/PDF_NASA_RECOVER2/RECOVER_NDVI_Baseline.pdf">NASA RECOVER 2.0
+                    NDVI Baseline document</a>.
+            </p>
+        </div>
+    </div>
+</body>
+
+</html>
